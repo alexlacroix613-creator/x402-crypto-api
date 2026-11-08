@@ -2,90 +2,73 @@
 
 **Live pay-per-call crypto APIs with x402 micropayments on Base.**
 
-No API keys. No subscriptions. No rate limits. Pay $0.01–$0.05 USDC per call, settled instantly on-chain.
+No API keys. No subscriptions. No rate limits. **3 free calls/day** — then $0.01 USDC per call.
 
 ---
 
-## 🚀 Live Endpoints
+## 🚀 Quick Start (Free)
 
-### 1. Price API — $0.01/call
-Real-time crypto prices from CoinGecko.
-
-```
-GET https://neat-brooms-shine.loca.lt/price?symbol=bitcoin
-```
-
-**Try it (free 402 challenge):**
 ```bash
-curl https://neat-brooms-shine.loca.lt/price?symbol=ethereum
+curl https://neat-brooms-shine.loca.lt/price?symbol=bitcoin
 ```
 
-Returns:
-```json
-{
-  "accepts": [{
-    "amount": "10000",
-    "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    "network": "base",
-    "payTo": "0x4721052333CA5A3fcf8cF1d839A8ADdffaf20a79"
-  }],
-  "error": "Payment required"
-}
-```
-
-Sign the EIP-3009 authorization, retry with `X-Payment` header, get data:
+Returns real data — no payment needed for first 3 calls/day.
 
 ```json
 {
-  "symbol": "ETHEREUM",
-  "coin_id": "ethereum",
-  "price_usd": 2456.78,
-  "change_24h_pct": 1.23,
-  "source": "coingecko",
-  "timestamp": 1794111319
+  "symbol": "BITCOIN",
+  "coin_id": "bitcoin",
+  "price_usd": 75842,
+  "change_24h_pct": 2.46,
+  "free_calls_remaining": 2,
+  "upgrade": "Pay $0.01/call for unlimited access"
 }
 ```
+
+**After 3 free calls:** Returns 402 with x402 payment requirements. Sign EIP-3009, retry with X-Payment header, continue.
+
+---
+
+## 💰 Pricing
+
+| Tier | Price | Limits |
+|------|-------|--------|
+| **Free** | $0 | 3 calls/day per IP |
+| **Paid** | $0.01/call | Unlimited |
+
+**No signup. No API key. Pay per use.**
+
+---
+
+## 🛠️ Endpoints
+
+### Price API — `https://neat-brooms-shine.loca.lt`
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /price?symbol=bitcoin` | Real-time price + 24h change |
+| `GET /docs` | API documentation |
+| `GET /health` | Service status |
 
 **Supported:** BTC, ETH, SOL, BNB, XRP, ADA, AVAX, DOGE, DOT, MATIC, LINK, UNI, ATOM, LTC, ETC + any CoinGecko ID
 
----
+### Research API — `https://brown-deer-agree.loca.lt`
 
-### 2. Research API — $0.05/call
-Structured crypto project dossier.
-
-```
-GET https://brown-deer-agree.loca.lt/research?project=solana
-```
-
-Returns sections on: token, funding, technical, community, risk assessment, opportunity.
+| Endpoint | Description | Price |
+|----------|-------------|-------|
+| `GET /research?project=solana` | Structured project dossier | $0.05/call |
 
 ---
 
-## 💡 Why x402?
-
-| Traditional API | x402 API |
-|-----------------|----------|
-| Sign up for API key | No account needed |
-| Monthly subscription | Pay per call |
-| Rate limits | Unlimited (pay for what you use) |
-| Credit card billing | USDC on Base |
-| Human-only | AI-agent native |
-
-**Built for autonomous agents** that need to pay for data without human intervention.
-
----
-
-## 🔧 Quick Start (Python)
+## 🔧 Paid Call Example
 
 ```python
 import base64, json, time
 from eth_account import Account
 from eth_account.messages import encode_typed_data
 
-# Your wallet (needs USDC on Base)
 account = Account.from_key('0x...')
 
-# Build payment
 now = int(time.time())
 payment = {
     'from': account.address,
@@ -97,7 +80,6 @@ payment = {
     'asset': '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
 }
 
-# Sign EIP-712
 DOMAIN = {
     'name': 'USD Coin', 'version': '2', 'chainId': 8453,
     'verifyingContract': '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
@@ -113,7 +95,6 @@ signed = account.sign_message(encode_typed_data(
 ))
 payment['signature'] = '0x' + signed.signature.hex()
 
-# Call API
 import urllib.request
 req = urllib.request.Request(
     'https://neat-brooms-shine.loca.lt/price?symbol=bitcoin',
@@ -121,26 +102,6 @@ req = urllib.request.Request(
 )
 print(json.loads(urllib.request.urlopen(req).read()))
 ```
-
----
-
-## 🛠️ Tech Stack
-
-- **Payment layer:** [x402-guard](https://github.com/alexlacroix613-creator/x402-guard) — open source, ~150 lines, offline verification
-- **Data:** CoinGecko API (free tier, no key needed)
-- **Network:** Base (USDC, chain ID 8453)
-- **Protocol:** x402 (HTTP 402 + EIP-3009 TransferWithAuthorization)
-
----
-
-## 📊 Pricing
-
-| Endpoint | Price | Use Case |
-|----------|-------|----------|
-| `/price` | $0.01 | Real-time price checks, trading bots |
-| `/research` | $0.05 | Due diligence, project analysis |
-
-**No minimums. No maximums. Pay exactly what you use.**
 
 ---
 
@@ -152,24 +113,4 @@ print(json.loads(urllib.request.urlopen(req).read()))
 
 ---
 
-## 🤝 Contributing
-
-Want to add an endpoint? PRs welcome.
-
-Ideas:
-- `/airdrop-check` — wallet eligibility across active airdrops
-- `/sentiment` — social media sentiment analysis
-- `/gas-optimize` — best time to transact on Ethereum
-- `/whale-watch` — large transaction alerts
-
----
-
-## 📜 License
-
-MIT. Use it, fork it, build on it.
-
 **If this saved you time:** USDC on Base → `0x4721052333CA5A3fcf8cF1d839A8ADdffaf20a79`
-
----
-
-*Built with OpenClaw + x402 protocol. Autonomous agents welcome.*
